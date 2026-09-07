@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Typing Speed Game</title>
+
+<style>
+/* ==================== UMUMIY DIZAYN ==================== */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --primary: #6c63ff;
+    --secondary: #ff6584;
+    --green: #20b77a;
+    --text: #25243a;
+    --muted: #77758c;
+    --bg: #f5f3ff;
+    --card: #ffffff;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: linear-gradient(135deg, #f5f3ff, #fff5f8);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Orqa fondagi chiroyli doiralar */
+
+body::before {
+    content: "";
+    position: fixed;
+    width: 300px;
+    height: 300px;
+    background: #e8e5ff;
+    border-radius: 50%;
+    top: -120px;
+    left: -100px;
+    z-index: -1;
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    width: 280px;
+    height: 280px;
+    background: #ffe5ed;
+    border-radius: 50%;
+    bottom: -120px;
+    right: -100px;
+    z-index: -1;
+}
+
+.app {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.screen {
+    display: none;
+    width: 100%;
+    max-width: 850px;
+    animation: fadeIn 0.4s ease;
+}
+
+.screen.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.menu-card,
+.game-card,
+.result-card {
+    background: var(--card);
+    border-radius: 28px;
+    padding: 35px;
+    box-shadow: 0 15px 45px rgba(108, 99, 255, 0.12);
+}
+
+h1 {
+    font-size: 38px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    text-align: center;
+    color: var(--muted);
+    margin-bottom: 25px;
+}
+
+/* ==================== BOSH MENU ==================== */
+
+.logo {
+    width: 75px;
+    height: 75px;
+    background: linear-gradient(135deg, var(--primary), #918aff);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    margin: 0 auto 20px;
+    box-shadow: 0 10px 25px rgba(108, 99, 255, 0.25);
+}
+
+.creator {
+    background: #f5f3ff;
+    padding: 14px;
+    border-radius: 14px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 25px;
+}
+
+.creator strong {
+    display: block;
+    color: var(--primary);
+    font-size: 17px;
+    margin-top: 5px;
+}
+
+.settings {
+    margin-bottom: 25px;
+}
+
+.settings label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+select {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid #eee;
+    border-radius: 12px;
+    font-size: 15px;
+    outline: none;
+    background: white;
+    cursor: pointer;
+}
+
+select:focus {
+    border-color: var(--primary);
+}
+
+h3 {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 18px;
+}
+
+.level-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.level-btn {
+    border: 2px solid #eee;
+    background: white;
+    border-radius: 14px;
+    padding: 14px 8px;
+    cursor: pointer;
+    transition: 0.25s;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.level-btn:hover {
+    border-color: var(--primary);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(108, 99, 255, 0.12);
+}
+
+.level-btn .number {
+    display: block;
+    font-size: 22px;
+    color: var(--primary);
+    margin-bottom: 4px;
+}
+
+.level-btn .difficulty {
+    font-size: 11px;
+    color: var(--muted);
+}
+
+.best-score {
+    padding: 15px;
+    background: #fff8e7;
+    border-radius: 14px;
+    text-align: center;
+    font-size: 14px;
+    color: #a17a18;
+}
+
+.best-score span {
+    font-weight: bold;
+}
+
+/* ==================== O'YIN EKRANI ==================== */
+
+.game-card {
+    text-align: left;
+}
+
+.game-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 25px;
+}
+
+.game-title {
+    text-align: center;
+}
+
+.game-title span {
+    font-size: 12px;
+    color: var(--primary);
+    font-weight: bold;
+}
+
+.game-title h2 {
+    font-size: 22px;
+    margin-top: 4px;
+}
+
+.icon-btn {
+    width: 45px;
+    height: 45px;
+    border: none;
+    background: #f5f3ff;
+    color: var(--primary);
+    border-radius: 12px;
+    font-size: 25px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.icon-btn:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.stat {
+    background: #f8f7ff;
+    border-radius: 14px;
+    padding: 15px;
+    text-align: center;
+}
+
+.stat span {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 5px;
+}
+
+.stat strong {
+    font-size: 20px;
+    color: var(--primary);
+}
+
+.progress-container {
+    height: 8px;
+    background: #eee;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    overflow: hidden;
+}
+
+#progressBar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: 10px;
+    transition: width 0.2s;
+}
+
+.text-display {
+    background: #faf9ff;
+    border: 2px solid #eee;
+    border-radius: 16px;
+    padding: 25px;
+    font-size: 21px;
+    line-height: 1.8;
+    color: #aaa7bb;
+    margin-bottom: 20px;
+    min-height: 150px;
+    user-select: none;
+    overflow-wrap: break-word;
+}
+
+.text-display .correct {
+    color: var(--green);
+}
+
+.text-display .incorrect {
+    color: #ff5c7c;
+    background: #ffe9ee;
+    border-radius: 3px;
+}
+
+.text-display .current {
+    background: #e8e5ff;
+    color: var(--primary);
+    border-radius: 3px;
+}
+
+#typingInput {
+    width: 100%;
+    min-height: 130px;
+    resize: vertical;
+    border: 2px solid #eee;
+    border-radius: 16px;
+    padding: 18px;
+    font-family: inherit;
+    font-size: 18px;
+    line-height: 1.6;
+    outline: none;
+    transition: 0.2s;
+}
+
+#typingInput:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.08);
+}
+
+.game-tip {
+    text-align: center;
+    margin-top: 18px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+/* ==================== NATIJA EKRANI ==================== */
+
+.result-card {
+    max-width: 600px;
+    margin: auto;
+    text-align: center;
+}
+
+.result-icon {
+    font-size: 60px;
+    margin-bottom: 15px;
+}
+
+.result-score {
+    background: linear-gradient(135deg, #f5f3ff, #fff0f5);
+    border-radius: 18px;
+    padding: 25px;
+    margin: 25px 0;
+}
+
+.result-score span {
+    display: block;
+    color: var(--muted);
+    margin-bottom: 8px;
+}
+
+.result-score strong {
+    font-size: 42px;
+    color: var(--primary);
+}
+
+.result-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.result-stats div {
+    background: #f8f7ff;
+    padding: 18px;
+    border-radius: 14px;
+}
+
+.result-stats span {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 6px;
+}
+
+.result-stats strong {
+    color: var(--text);
+    font-size: 18px;
+}
+
+.result-message {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 25px;
+}
+
+.result-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.primary-btn,
+.secondary-btn {
+    flex: 1;
+    padding: 15px;
+    border-radius: 14px;
+    border: none;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.primary-btn {
+    background: var(--primary);
+    color: white;
+}
+
+.primary-btn:hover {
+    background: #574ee8;
+    transform: translateY(-2px);
+}
+
+.secondary-btn {
+    background: #f5f3ff;
+    color: var(--primary);
+}
+
+.secondary-btn:hover {
+    background: #e8e5ff;
+}
+
+/* ==================== TELEFON UCHUN ==================== */
+
+@media (max-width: 600px) {
+    .app {
+        padding: 12px;
+        align-items: flex-start;
+        padding-top: 20px;
+    }
+
+    .menu-card,
+    .game-card,
+    .result-card {
+        padding: 22px 16px;
+        border-radius: 22px;
+    }
+
+    h1 {
+        font-size: 30px;
+    }
+
+    .level-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .level-btn {
+        padding: 12px 5px;
+    }
+
+    .level-btn .number {
+        font-size: 20px;
+    }
+
+    .game-title h2 {
+        font-size: 18px;
+    }
+
+    .stats {
+        gap: 7px;
+    }
+
+    .stat {
+        padding: 12px 5px;
+    }
+
+    .stat strong {
+        font-size: 17px;
+    }
+
+    .text-display {
+        font-size: 17px;
+        padding: 18px;
+        line-height: 1.8;
+        min-height: 180px;
+    }
+
+    #typingInput {
+        font-size: 16px;
+        min-height: 120px;
+    }
+
+    .result-score strong {
+        font-size: 36px;
+    }
+
+    .result-buttons {
+        flex-direction: column;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- ==================== BOSH MENU ==================== -->
+
+<section id="menuScreen" class="screen active">
+
+    <div class="menu-card">
+
+        <div class="logo">⌨️</div>
+
+        <h1>Typing Speed</h1>
+
+        <p class="subtitle">
+            Tez yozing. Yangi rekord yarating! 🚀
+        </p>
+
+        <div class="creator">
+            🎨 O‘yin yaratuvchisi:
+            <strong>Sultonova Hilola</strong>
+        </div>
+
+        <div class="settings">
+
+            <label for="languageSelect">
+                🌍 Tilni tanlang
+            </label>
+
+            <select id="languageSelect">
+                <option value="uz">🇺🇿 O‘zbek tili</option>
+                <option value="en">🇬🇧 English</option>
+                <option value="ru">🇷🇺 Русский язык</option>
+            </select>
+
+        </div>
+
+        <h3>🎯 Qiyinlik darajasini tanlang</h3>
+
+        <div id="levelGrid" class="level-grid"></div>
+
+        <div class="best-score">
+            🏆 Eng yaxshi natija:
+            <span id="menuBestScore">0 WPM</span>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ==================== O‘YIN EKRANI ==================== -->
+
+<section id="gameScreen" class="screen">
+
+    <div class="game-card">
+
+        <div class="game-header">
+
+            <button id="backBtn" class="icon-btn">
+                ←
+            </button>
+
+            <div class="game-title">
+                <span id="gameLevel">1-daraja</span>
+                <h2 id="gameTopic">🌱 Tabiat</h2>
+            </div>
+
+            <button id="restartBtn" class="icon-btn">
+                ↻
+            </button>
+
+        </div>
+
+        <div class="stats">
+
+            <div class="stat">
+                <span>⏱️ Vaqt</span>
+                <strong id="timeDisplay">0:00</strong>
+            </div>
+
+            <div class="stat">
+                <span>⌨️ WPM</span>
+                <strong id="wpmDisplay">0</strong>
+            </div>
+
+            <div class="stat">
+                <span>🎯 Aniqlik</span>
+                <strong id="accuracyDisplay">100%</strong>
+            </div>
+
+        </div>
+
+        <div class="progress-container">
+            <div id="progressBar"></div>
+        </div>
+
+        <div id="textDisplay" class="text-display"></div>
+
+        <textarea
+            id="typingInput"
+            placeholder="Yozishni boshlang..."
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+        ></textarea>
+
+        <div class="game-tip">
+            💡 Matnni imkon qadar tez va xatosiz yozing!
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ==================== NATIJA EKRANI ==================== -->
+
+<section id="resultScreen" class="screen">
+
+    <div class="result-card">
+
+        <div class="result-icon">🏆</div>
+
+        <h1>Tabriklaymiz!</h1>
+
+        <p class="subtitle">
+            Siz matnni muvaffaqiyatli yozdingiz!
+        </p>
+
+        <div class="result-score">
+
+            <span>Sizning bahoyingiz</span>
+
+            <strong id="resultRating">5/5 ⭐</strong>
+
+        </div>
+
+        <div class="result-stats">
+
+            <div>
+                <span>⌨️ Tezlik</span>
+                <strong id="resultWpm">0 WPM</strong>
+            </div>
+
+            <div>
+                <span>⏱️ Vaqt</span>
+                <strong id="resultTime">0:00</strong>
+            </div>
+
+            <div>
+                <span>🎯 Aniqlik</span>
+                <strong id="resultAccuracy">100%</strong>
+            </div>
+
+            <div>
+                <span>📝 So‘zlar</span>
+                <strong id="resultWords">0</strong>
+            </div>
+
+        </div>
+
+        <div id="resultMessage" class="result-message"></div>
+
+        <div class="result-buttons">
+
+            <button id="playAgainBtn" class="primary-btn">
+                🔄 Yana o‘ynash
+            </button>
+
+            <button id="menuBtn" class="secondary-btn">
+                🏠 Bosh menyu
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+</div>
+
+
+<script>
+/* =====================================================
+   TYPING SPEED GAME
+   O‘yin yaratuvchisi: Sultonova Hilola
+   ===================================================== */
+
+
+/* ==================== MATNLAR ==================== */
+
+const texts = {
+
+    uz: [
+        {
+            topic: "🌱 Tabiat",
+            text: "Tabiat bizning eng katta boyligimizdir. Daraxtlar havoni tozalaydi, daryolar esa hayot uchun zarur bo‘lgan suvni beradi. Biz tabiatni asrashimiz va atrof-muhitga g‘amxo‘rlik qilishimiz kerak."
+        },
+        {
+            topic: "📚 Kitob",
+            text: "Kitob o‘qish insonning bilimini oshiradi va tasavvurini kengaytiradi. Har kuni bir necha sahifa kitob o‘qish foydali odatdir. Kitoblar bizga yangi dunyolarni kashf etishga yordam beradi."
+        },
+        {
+            topic: "🎓 Ta'lim",
+            text: "Ta'lim inson hayotida muhim o‘rin tutadi. Maktabda biz nafaqat fanlarni, balki do‘stlik, hurmat va mas'uliyatni ham o‘rganamiz. Bilim olish kelajakdagi muvaffaqiyatning asosidir."
+        },
+        {
+            topic: "💻 Texnologiya",
+            text: "Zamonaviy texnologiyalar hayotimizni ancha qulaylashtirdi. Internet orqali ma'lumot izlash, masofadan o‘qish va odamlar bilan muloqot qilish mumkin. Texnologiyadan to‘g‘ri foydalanish juda muhim."
+        },
+        {
+            topic: "🌍 Sayohat",
+            text: "Sayohat qilish yangi joylarni ko‘rish va turli xalqlarning madaniyatini o‘rganish imkonini beradi. Har bir sayohat inson xotirasida unutilmas taassurot qoldiradi."
+        },
+        {
+            topic: "🏃 Sport",
+            text: "Sport bilan shug‘ullanish sog‘liq uchun foydalidir. Muntazam jismoniy mashqlar insonni kuchli va faol qiladi. Har kuni ozgina vaqtni sportga ajratish yaxshi natija beradi."
+        },
+        {
+            topic: "🚀 Kelajak",
+            text: "Kelajakda texnologiyalar yanada rivojlanadi. Aqlli shaharlar, zamonaviy transport va yangi kashfiyotlar hayotimizni o‘zgartirishi mumkin. Buning uchun yoshlar yaxshi ta'lim olishi kerak."
+        },
+        {
+            topic: "🤝 Do‘stlik",
+            text: "Haqiqiy do‘stlik ishonch va hurmatga asoslanadi. Yaxshi do‘stlar qiyin paytlarda bir-biriga yordam beradi. Do‘stlikni saqlash uchun samimiy va mehribon bo‘lish kerak."
+        },
+        {
+            topic: "🌟 Orzular",
+            text: "Har bir insonning o‘z orzulari bor. Orzuga erishish uchun aniq maqsad qo‘yish va muntazam harakat qilish kerak. Kichik qadamlar ham katta natijalarga olib kelishi mumkin."
+        },
+        {
+            topic: "🏆 Muvaffaqiyat",
+            text: "Muvaffaqiyatga erishish uchun mehnat, sabr va qat'iyat zarur. Xatolar bizga tajriba beradi. Eng muhimi, qiyinchiliklardan qo‘rqmasdan oldinga intilishdir."
+        }
+    ],
+
+    en: [
+        {
+            topic: "🌱 Nature",
+            text: "Nature is one of the greatest treasures of our planet. Trees clean the air, while rivers provide water for life. We should protect the environment and take care of the world around us."
+        },
+        {
+            topic: "📚 Books",
+            text: "Reading books increases our knowledge and expands our imagination. Reading a few pages every day is a useful habit. Books help us discover new worlds and understand different ideas."
+        },
+        {
+            topic: "🎓 Education",
+            text: "Education plays an important role in our lives. At school, we learn not only subjects but also friendship, respect, and responsibility. Knowledge is the foundation of future success."
+        },
+        {
+            topic: "💻 Technology",
+            text: "Modern technology has made our lives much easier. We can search for information, study online, and communicate with people around the world. Using technology wisely is very important."
+        },
+        {
+            topic: "🌍 Travel",
+            text: "Travelling gives us the opportunity to see new places and learn about different cultures. Every journey creates unforgettable memories and helps us understand the world better."
+        },
+        {
+            topic: "🏃 Sport",
+            text: "Doing sports is good for our health. Regular physical activity makes people stronger and more active. Spending a little time on exercise every day can bring great results."
+        },
+        {
+            topic: "🚀 Future",
+            text: "Technology will continue to develop in the future. Smart cities, modern transport, and new discoveries may change our lives. Young people need a good education to prepare for this future."
+        },
+        {
+            topic: "🤝 Friendship",
+            text: "True friendship is based on trust and respect. Good friends help each other during difficult times. To keep a friendship strong, people should be honest, kind, and supportive."
+        },
+        {
+            topic: "🌟 Dreams",
+            text: "Every person has their own dreams. To achieve a dream, we need to set clear goals and work regularly. Even small steps can lead to great results when we never give up."
+        },
+        {
+            topic: "🏆 Success",
+            text: "Success requires hard work, patience, and determination. Mistakes give us valuable experience. The most important thing is to keep moving forward and never be afraid of challenges."
+        }
+    ],
+
+    ru: [
+        {
+            topic: "🌱 Природа",
+            text: "Природа является одним из величайших богатств нашей планеты. Деревья очищают воздух, а реки дают воду для жизни. Мы должны беречь окружающую среду и заботиться о мире вокруг нас."
+        },
+        {
+            topic: "📚 Книги",
+            text: "Чтение книг увеличивает наши знания и развивает воображение. Читать несколько страниц каждый день — полезная привычка. Книги помогают нам открывать новые миры и понимать разные идеи."
+        },
+        {
+            topic: "🎓 Образование",
+            text: "Образование играет важную роль в нашей жизни. В школе мы изучаем не только предметы, но и дружбу, уважение и ответственность. Знания являются основой будущего успеха."
+        },
+        {
+            topic: "💻 Технологии",
+            text: "Современные технологии сделали нашу жизнь намного удобнее. Мы можем искать информацию, учиться онлайн и общаться с людьми со всего мира. Очень важно правильно использовать технологии."
+        },
+        {
+            topic: "🌍 Путешествия",
+            text: "Путешествия дают нам возможность увидеть новые места и узнать о разных культурах. Каждая поездка оставляет незабываемые воспоминания и помогает лучше понять мир."
+        },
+        {
+            topic: "🏃 Спорт",
+            text: "Занятия спортом полезны для здоровья. Регулярная физическая активность делает человека сильнее и активнее. Даже небольшое количество времени, посвящённое спорту каждый день, приносит хорошие результаты."
+        },
+        {
+            topic: "🚀 Будущее",
+            text: "В будущем технологии будут продолжать развиваться. Умные города, современный транспорт и новые открытия могут изменить нашу жизнь. Молодым людям необходимо хорошее образование для подготовки к будущему."
+        },
+        {
+            topic: "🤝 Дружба",
+            text: "Настоящая дружба основана на доверии и уважении. Хорошие друзья помогают друг другу в трудные времена. Чтобы сохранить дружбу, нужно быть честным, добрым и внимательным."
+        },
+        {
+            topic: "🌟 Мечты",
+            text: "У каждого человека есть свои мечты. Чтобы достичь мечты, нужно поставить ясные цели и регулярно работать. Даже маленькие шаги могут привести к большим результатам."
+        },
+        {
+            topic: "🏆 Успех",
+            text: "Для достижения успеха необходимы труд, терпение и решительность. Ошибки дают нам ценный опыт. Самое главное — продолжать двигаться вперёд и не бояться трудностей."
+        }
+    ]
+
+};
+
+
+/* ==================== O‘YIN HOLATI ==================== */
+
+let currentLanguage = "uz";
+let currentLevel = 1;
+let currentText = "";
+
+let startTime = null;
+let timerInterval = null;
+let gameFinished = false;
+
+let totalTyped = 0;
+let correctTyped = 0;
+
+
+/* ==================== ELEMENTLAR ==================== */
+
+const menuScreen = document.getElementById("menuScreen");
+const gameScreen = document.getElementById("gameScreen");
+const resultScreen = document.getElementById("resultScreen");
+
+const languageSelect = document.getElementById("languageSelect");
+const levelGrid = document.getElementById("levelGrid");
+
+const typingInput = document.getElementById("typingInput");
+const textDisplay = document.getElementById("textDisplay");
+
+const timeDisplay = document.getElementById("timeDisplay");
+const wpmDisplay = document.getElementById("wpmDisplay");
+const accuracyDisplay = document.getElementById("accuracyDisplay");
+const progressBar = document.getElementById("progressBar");
+
+
+/* ==================== DARAJALAR ==================== */
+
+const difficulties = [
+    "Oson",
+    "Oson",
+    "Oson",
+    "O‘rtacha",
+    "O‘rtacha",
+    "O‘rtacha",
+    "Qiyin",
+    "Qiyin",
+    "Juda qiyin",
+    "Usta"
+];
+
+function createLevelButtons() {
+
+    levelGrid.innerHTML = "";
+
+    for (let i = 1; i <= 10; i++) {
+
+        const button = document.createElement("button");
+
+        button.className = "level-btn";
+
+        button.innerHTML = `
+            <span class="number">${i}</span>
+            <span class="difficulty">${difficulties[i - 1]}</span>
+        `;
+
+        button.addEventListener("click", () => {
+            startGame(i);
+        });
+
+        levelGrid.appendChild(button);
+    }
+}
+
+
+/* ==================== EKRAN ALMASHTIRISH ==================== */
+
+function showScreen(screen) {
+
+    menuScreen.classList.remove("active");
+    gameScreen.classList.remove("active");
+    resultScreen.classList.remove("active");
+
+    screen.classList.add("active");
+}
+
+
+/* ==================== O‘YINNI BOSHLASH ==================== */
+
+function startGame(level) {
+
+    currentLanguage = languageSelect.value;
+    currentLevel = level;
+
+    const selectedText = texts[currentLanguage][level - 1];
+
+    currentText = selectedText.text;
+
+    document.getElementById("gameLevel").textContent =
+        `${level}-daraja`;
+
+    document.getElementById("gameTopic").textContent =
+        selectedText.topic;
+
+    showScreen(gameScreen);
+
+    resetGame();
+}
+
+
+/* ==================== O‘YINNI QAYTA BOSHLASH ==================== */
+
+function resetGame() {
+
+    clearInterval(timerInterval);
+
+    startTime = null;
+    gameFinished = false;
+
+    totalTyped = 0;
+    correctTyped = 0;
+
+    typingInput.value = "";
+    typingInput.disabled = false;
+
+    timeDisplay.textContent = "0:00";
+    wpmDisplay.textContent = "0";
+    accuracyDisplay.textContent = "100%";
+
+    progressBar.style.width = "0%";
+
+    renderText();
+
+    setTimeout(() => {
+        typingInput.focus();
+    }, 300);
+}
+
+
+/* ==================== MATNNI KO‘RSATISH ==================== */
+
+function renderText() {
+
+    const typedText = typingInput.value;
+
+    textDisplay.innerHTML = "";
+
+    for (let i = 0; i < currentText.length; i++) {
+
+        const span = document.createElement("span");
+
+        span.textContent = currentText[i];
+
+        if (i < typedText.length) {
+
+            if (typedText[i] === currentText[i]) {
+                span.className = "correct";
+            } else {
+                span.className = "incorrect";
+            }
+
+        } else if (i === typedText.length) {
+
+            span.className = "current";
+
+        }
+
+        textDisplay.appendChild(span);
+    }
+}
+
+
+/* ==================== VAQTNI FORMATLASH ==================== */
+
+function formatTime(seconds) {
+
+    const minutes = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+
+    return `${minutes}:${secs.toString().padStart(2, "0")}`;
+}
+
+
+/* ==================== STATISTIKANI YANGILASH ==================== */
+
+function updateStats() {
+
+    if (!startTime) return;
+
+    const elapsedSeconds = (Date.now() - startTime) / 1000;
+
+    const minutes = elapsedSeconds / 60;
+
+    const typedText = typingInput.value;
+
+    totalTyped = typedText.length;
+
+    correctTyped = 0;
+
+    for (let i = 0; i < typedText.length; i++) {
+
+        if (typedText[i] === currentText[i]) {
+            correctTyped++;
+        }
+
+    }
+
+    const accuracy = totalTyped > 0
+        ? Math.round((correctTyped / totalTyped) * 100)
+        : 100;
+
+    const words = typedText.trim()
+        ? typedText.trim().split(/\s+/).length
+        : 0;
+
+    const wpm = minutes > 0
+        ? Math.round(words / minutes)
+        : 0;
+
+    timeDisplay.textContent = formatTime(elapsedSeconds);
+
+    wpmDisplay.textContent = wpm;
+
+    accuracyDisplay.textContent = `${accuracy}%`;
+
+    const progress = Math.min(
+        (typedText.length / currentText.length) * 100,
+        100
+    );
+
+    progressBar.style.width = `${progress}%`;
+}
+
+
+/* ==================== TYPING INPUT ==================== */
+
+typingInput.addEventListener("input", () => {
+
+    if (gameFinished) return;
+
+    if (!startTime) {
+
+        startTime = Date.now();
+
+        timerInterval = setInterval(() => {
+            updateStats();
+        }, 100);
+
+    }
+
+    renderText();
+
+    updateStats();
+
+    if (typingInput.value.length >= currentText.length) {
+        finishGame();
+    }
+
+});
+
+
+/* ==================== O‘YINNI YAKUNLASH ==================== */
+
+function finishGame() {
+
+    if (gameFinished) return;
+
+    gameFinished = true;
+
+    clearInterval(timerInterval);
+
+    typingInput.disabled = true;
+
+    updateStats();
+
+    const typedText = typingInput.value;
+
+    const elapsedSeconds = startTime
+        ? (Date.now() - startTime) / 1000
+        : 0;
+
+    const minutes = elapsedSeconds / 60;
+
+    const words = currentText.trim()
+        ? currentText.trim().split(/\s+/).length
+        : 0;
+
+    const wpm = minutes > 0
+        ? Math.round(words / minutes)
+        : 0;
+
+    let correct = 0;
+
+    for (let i = 0; i < currentText.length; i++) {
+
+        if (typedText[i] === currentText[i]) {
+            correct++;
+        }
+
+    }
+
+    const accuracy = currentText.length > 0
+        ? Math.round((correct / currentText.length) * 100)
+        : 0;
+
+    const rating = calculateRating(wpm, accuracy);
+
+    showResult(
+        wpm,
+        elapsedSeconds,
+        accuracy,
+        words,
+        rating
+    );
+}
+
+
+/* ==================== BAHO QO‘YISH ==================== */
+
+function calculateRating(wpm, accuracy) {
+
+    if (accuracy < 70) return 1;
+
+    if (accuracy < 80) return 2;
+
+    if (accuracy < 90) return 3;
+
+    if (accuracy >= 95 && wpm >= 45) return 5;
+
+    if (accuracy >= 90 && wpm >= 25) return 4;
+
+    return 3;
+}
+
+
+/* ==================== NATIJANI KO‘RSATISH ==================== */
+
+function showResult(wpm, seconds, accuracy, words, rating) {
+
+    document.getElementById("resultRating").textContent =
+        `${rating}/5 ⭐`;
+
+    document.getElementById("resultWpm").textContent =
+        `${wpm} WPM`;
+
+    document.getElementById("resultTime").textContent =
+        formatTime(seconds);
+
+    document.getElementById("resultAccuracy").textContent =
+        `${accuracy}%`;
+
+    document.getElementById("resultWords").textContent =
+        words;
+
+    const messages = {
+
+        5: "Ajoyib natija! Siz juda tez va aniq yozasiz! 🚀",
+
+        4: "Juda yaxshi! Yana ozgina mashq qilsangiz, 5 baho olasiz! 🌟",
+
+        3: "Yaxshi natija! Tezlik va aniqlikni oshirishda davom eting! 💪",
+
+        2: "Yaxshi harakat! Ko‘proq mashq qilish sizga yordam beradi! 📚",
+
+        1: "Mashq qilishda davom eting! Har bir urinish sizni yaxshilaydi! 🌱"
+
+    };
+
+    document.getElementById("resultMessage").textContent =
+        messages[rating];
+
+    saveBestScore(wpm);
+
+    showScreen(resultScreen);
+}
+
+
+/* ==================== ENG YAXSHI NATIJA ==================== */
+
+function saveBestScore(wpm) {
+
+    const key = `typingBest_${currentLanguage}`;
+
+    const oldBest = Number(localStorage.getItem(key)) || 0;
+
+    if (wpm > oldBest) {
+        localStorage.setItem(key, wpm);
+    }
+
+    updateBestScore();
+}
+
+function updateBestScore() {
+
+    const best = Number(
+        localStorage.getItem(`typingBest_${languageSelect.value}`)
+    ) || 0;
+
+    document.getElementById("menuBestScore").textContent =
+        `${best} WPM`;
+}
+
+
+/* ==================== TUGMALAR ==================== */
+
+document.getElementById("backBtn").addEventListener("click", () => {
+
+    clearInterval(timerInterval);
+
+    showScreen(menuScreen);
+
+    updateBestScore();
+});
+
+
+document.getElementById("restartBtn").addEventListener("click", () => {
+
+    resetGame();
+
+});
+
+
+document.getElementById("playAgainBtn").addEventListener("click", () => {
+
+    startGame(currentLevel);
+
+});
+
+
+document.getElementById("menuBtn").addEventListener("click", () => {
+
+    showScreen(menuScreen);
+
+    updateBestScore();
+
+});
+
+
+languageSelect.addEventListener("change", () => {
+
+    updateBestScore();
+
+});
+
+
+/* ==================== BOSHLANG‘ICH ISHGA TUSHIRISH ==================== */
+
+createLevelButtons();
+
+updateBestScore();
+
+</script>
+
+</body>
+</html>
